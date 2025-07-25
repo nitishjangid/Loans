@@ -1,0 +1,83 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart EMI Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+  <div class="bg-white rounded-2xl shadow-lg p-6 max-w-md w-full">
+    <h1 class="text-2xl font-semibold mb-4 text-center">Smart EMI Calculator</h1><label class="block mb-2 text-sm font-medium">What do you want to calculate?</label>
+<select id="calculateOption" class="w-full mb-4 p-2 border rounded">
+  <option value="emi">EMI</option>
+  <option value="loan">Loan Amount</option>
+  <option value="tenure">Tenure</option>
+  <option value="interest">Interest Rate</option>
+</select>
+
+<div class="space-y-4">
+  <div>
+    <label class="block text-sm">Loan Amount (₹)</label>
+    <input type="number" id="loanAmount" class="w-full p-2 border rounded" />
+  </div>
+
+  <div>
+    <label class="block text-sm">EMI (₹)</label>
+    <input type="number" id="emi" class="w-full p-2 border rounded" />
+  </div>
+
+  <div>
+    <label class="block text-sm">Annual Interest Rate (%)</label>
+    <input type="number" id="interestRate" class="w-full p-2 border rounded" />
+  </div>
+
+  <div>
+    <label class="block text-sm">Tenure</label>
+    <div class="flex gap-2">
+      <input type="number" id="years" class="w-1/2 p-2 border rounded" placeholder="Years" />
+      <input type="number" id="months" class="w-1/2 p-2 border rounded" placeholder="Months" />
+    </div>
+  </div>
+
+  <button onclick="calculate()" class="bg-blue-600 text-white w-full p-2 rounded hover:bg-blue-700">Calculate</button>
+
+  <div id="result" class="text-center text-lg font-semibold mt-4 text-green-700"></div>
+</div>
+
+  </div>  <script>
+    function calculate() {
+      const option = document.getElementById('calculateOption').value;
+      const P = parseFloat(document.getElementById('loanAmount').value);
+      const E = parseFloat(document.getElementById('emi').value);
+      const R = parseFloat(document.getElementById('interestRate').value) / 12 / 100;
+      const years = parseInt(document.getElementById('years').value) || 0;
+      const months = parseInt(document.getElementById('months').value) || 0;
+      const N = (years * 12) + months;
+
+      let result = '';
+
+      if (option === 'emi') {
+        if (!P || !R || !N) return showError();
+        const emi = P * R * Math.pow(1 + R, N) / (Math.pow(1 + R, N) - 1);
+        result = `Your EMI is ₹${emi.toFixed(2)}`;
+      } else if (option === 'loan') {
+        if (!E || !R || !N) return showError();
+        const loan = E * (Math.pow(1 + R, N) - 1) / (R * Math.pow(1 + R, N));
+        result = `Loan Amount is ₹${loan.toFixed(2)}`;
+      } else if (option === 'tenure') {
+        if (!P || !R || !E) return showError();
+        let n = Math.log(E / (E - P * R)) / Math.log(1 + R);
+        result = `Tenure is ${Math.floor(n / 12)} years ${Math.round(n % 12)} months`;
+      } else if (option === 'interest') {
+        // Optional & tricky — need iterative solver, here we keep it basic
+        result = 'Interest rate calculation is complex and not supported yet.';
+      }
+
+      document.getElementById('result').innerText = result;
+    }
+
+    function showError() {
+      document.getElementById('result').innerText = 'Please fill the required fields properly.';
+    }
+  </script></body>
+</html>
