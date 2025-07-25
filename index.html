@@ -2,82 +2,115 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart EMI Calculator</title>
+  <title>Loan Eligibility - Steps</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
-  <div class="bg-white rounded-2xl shadow-lg p-6 max-w-md w-full">
-    <h1 class="text-2xl font-semibold mb-4 text-center">Smart EMI Calculator</h1><label class="block mb-2 text-sm font-medium">What do you want to calculate?</label>
-<select id="calculateOption" class="w-full mb-4 p-2 border rounded">
-  <option value="emi">EMI</option>
-  <option value="loan">Loan Amount</option>
-  <option value="tenure">Tenure</option>
-  <option value="interest">Interest Rate</option>
-</select>
+<body class="bg-gray-100 min-h-screen p-6">
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+    <h1 class="text-2xl font-bold mb-6 text-blue-700 text-center">Plan a New Loan - Eligibility Tool</h1><!-- Step 1: Loan Type -->
+<div class="mb-6">
+  <label class="block mb-2 font-medium text-gray-700">Select Loan Type</label>
+  <select id="loanType" class="w-full border rounded-lg p-2">
+    <option value="home">🏠 Home Loan</option>
+    <option value="personal">👤 Personal Loan</option>
+    <option value="car">🚗 Car Loan</option>
+    <option value="other">📄 Other Loan</option>
+  </select>
+</div>
 
-<div class="space-y-4">
-  <div>
-    <label class="block text-sm">Loan Amount (₹)</label>
-    <input type="number" id="loanAmount" class="w-full p-2 border rounded" />
+<!-- Step 2: Employment Type -->
+<div class="mb-6">
+  <label class="block mb-2 font-medium text-gray-700">Select Employment Type</label>
+  <select id="employmentType" class="w-full border rounded-lg p-2">
+    <option value="salaried">👔 Salaried</option>
+    <option value="professional">🩺 Professional</option>
+    <option value="business">🏢 Business Owner</option>
+  </select>
+</div>
+
+<!-- Step 3: Monthly Income -->
+<div class="mb-6">
+  <label class="block mb-2 font-medium text-gray-700">Monthly Income (₹)</label>
+  <input type="number" id="monthlyIncome" class="w-full border rounded-lg p-2" placeholder="e.g. 120000" />
+</div>
+
+<!-- Step 4: Existing Obligations -->
+<div class="mb-6">
+  <label class="block mb-2 font-medium text-gray-700">Existing Fixed Obligations (₹)</label>
+  <input type="number" id="monthlyObligations" class="w-full border rounded-lg p-2" placeholder="e.g. 40000" />
+</div>
+
+<!-- Step 6: Tenure and Interest Rate -->
+<div class="mb-6">
+  <label class="block mb-2 font-medium text-gray-700">Loan Tenure</label>
+  <div class="flex gap-4">
+    <input type="number" id="tenureValue" class="w-1/2 border rounded-lg p-2" placeholder="e.g. 15" />
+    <select id="tenureUnit" class="w-1/2 border rounded-lg p-2">
+      <option value="years">Years</option>
+      <option value="months">Months</option>
+    </select>
   </div>
+</div>
 
-  <div>
-    <label class="block text-sm">EMI (₹)</label>
-    <input type="number" id="emi" class="w-full p-2 border rounded" />
-  </div>
+<div class="mb-6">
+  <label class="block mb-2 font-medium text-gray-700">Annual Interest Rate (%)</label>
+  <input type="number" id="annualRate" class="w-full border rounded-lg p-2" placeholder="e.g. 9.5" />
+</div>
 
-  <div>
-    <label class="block text-sm">Annual Interest Rate (%)</label>
-    <input type="number" id="interestRate" class="w-full p-2 border rounded" />
-  </div>
+<!-- Calculate Button -->
+<div class="text-center">
+  <button onclick="calculateLoanAmount()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl">
+    Show Loan Eligibility 💰
+  </button>
+</div>
 
-  <div>
-    <label class="block text-sm">Tenure</label>
-    <div class="flex gap-2">
-      <input type="number" id="years" class="w-1/2 p-2 border rounded" placeholder="Years" />
-      <input type="number" id="months" class="w-1/2 p-2 border rounded" placeholder="Months" />
-    </div>
-  </div>
-
-  <button onclick="calculate()" class="bg-blue-600 text-white w-full p-2 rounded hover:bg-blue-700">Calculate</button>
-
-  <div id="result" class="text-center text-lg font-semibold mt-4 text-green-700"></div>
+<!-- Result -->
+<div id="resultBox" class="mt-8 hidden bg-green-100 p-4 rounded-xl text-center">
+  <p id="resultText" class="text-lg font-semibold text-green-800"></p>
+  <a href="https://www.paisabazaar.com/home-loan/?referrer=your-unique-code" target="_blank" class="inline-block mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl">
+    🔍 Compare Home Loan Rates (Recommended)
+  </a>
 </div>
 
   </div>  <script>
-    function calculate() {
-      const option = document.getElementById('calculateOption').value;
-      const P = parseFloat(document.getElementById('loanAmount').value);
-      const E = parseFloat(document.getElementById('emi').value);
-      const R = parseFloat(document.getElementById('interestRate').value) / 12 / 100;
-      const years = parseInt(document.getElementById('years').value) || 0;
-      const months = parseInt(document.getElementById('months').value) || 0;
-      const N = (years * 12) + months;
-
-      let result = '';
-
-      if (option === 'emi') {
-        if (!P || !R || !N) return showError();
-        const emi = P * R * Math.pow(1 + R, N) / (Math.pow(1 + R, N) - 1);
-        result = `Your EMI is ₹${emi.toFixed(2)}`;
-      } else if (option === 'loan') {
-        if (!E || !R || !N) return showError();
-        const loan = E * (Math.pow(1 + R, N) - 1) / (R * Math.pow(1 + R, N));
-        result = `Loan Amount is ₹${loan.toFixed(2)}`;
-      } else if (option === 'tenure') {
-        if (!P || !R || !E) return showError();
-        let n = Math.log(E / (E - P * R)) / Math.log(1 + R);
-        result = `Tenure is ${Math.floor(n / 12)} years ${Math.round(n % 12)} months`;
-      } else if (option === 'interest') {
-        // Optional & tricky — need iterative solver, here we keep it basic
-        result = 'Interest rate calculation is complex and not supported yet.';
+    function getFOIR(loanType) {
+      switch (loanType) {
+        case 'home': return 0.65;
+        case 'car': return 0.55;
+        case 'personal': return 0.45;
+        default: return 0.50;
       }
-
-      document.getElementById('result').innerText = result;
     }
 
-    function showError() {
-      document.getElementById('result').innerText = 'Please fill the required fields properly.';
+    function calculateLoanAmount() {
+      const income = parseFloat(document.getElementById("monthlyIncome").value);
+      const obligations = parseFloat(document.getElementById("monthlyObligations").value);
+      const loanType = document.getElementById("loanType").value;
+      const tenureVal = parseFloat(document.getElementById("tenureValue").value);
+      const tenureUnit = document.getElementById("tenureUnit").value;
+      const annualRate = parseFloat(document.getElementById("annualRate").value);
+
+      if (isNaN(income) || isNaN(obligations) || isNaN(tenureVal) || isNaN(annualRate)) {
+        alert("Please enter all required fields correctly.");
+        return;
+      }
+
+      const foir = getFOIR(loanType);
+      const maxEMI = (income * foir) - obligations;
+
+      if (maxEMI <= 0) {
+        document.getElementById("resultText").innerText = "Based on your obligations, you may not be eligible for a loan currently.";
+        document.getElementById("resultBox").classList.remove("hidden");
+        return;
+      }
+
+      const months = tenureUnit === 'years' ? tenureVal * 12 : tenureVal;
+      const monthlyRate = annualRate / 12 / 100;
+
+      const loanAmount = maxEMI * ((1 - Math.pow(1 + monthlyRate, -months)) / monthlyRate);
+
+      document.getElementById("resultText").innerText = `You are eligible for a loan amount of up to ₹${Math.floor(loanAmount).toLocaleString()} based on your EMI capacity of ₹${Math.floor(maxEMI).toLocaleString()}.`;
+      document.getElementById("resultBox").classList.remove("hidden");
     }
   </script></body>
 </html>
